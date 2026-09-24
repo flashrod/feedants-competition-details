@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   RefreshControl,
   ScrollView,
   TouchableOpacity,
@@ -27,11 +26,12 @@ import { StickyCTA } from '../components/obj/StickyCTA';
 import { TabBar } from '../components/obj/TabBar';
 import { Tx } from '../components/Tx';
 import { px } from '../utils/scale';
+import { notify } from '../utils/platform';
 
 export function ObjectiveScreen({ slug, userId }: { slug: string; userId: string | null }) {
   const [lang, setLang] = useState<'en' | 'hi'>('en');
   const t = getStrings(lang);
-  const { data, isLoading, isError, error, refetch, isRefetching, join } =
+  const { data, isLoading, isError, error, refetch, isRefetching, join, leave } =
     useCompetitionDetails(slug, userId);
 
   return (
@@ -87,13 +87,19 @@ export function ObjectiveScreen({ slug, userId }: { slug: string; userId: string
           <StickyCTA
             c={data}
             joining={join.isPending}
+            leaving={leave.isPending}
             onJoin={() =>
               join.mutate(
                 {},
-                { onError: (e) => Alert.alert(t.registerNow, apiErrorMessage(e)) },
+                { onError: (e) => notify(t.registerNow, apiErrorMessage(e)) },
               )
             }
-            onUpload={() => Alert.alert(t.uploadSubmission, t.videoSoon)}
+            onUpload={() => notify(t.uploadSubmission, t.videoSoon)}
+            onLeave={() =>
+              leave.mutate(undefined, {
+                onError: (e) => notify(t.leaveComp, apiErrorMessage(e)),
+              })
+            }
           />
         )}
         <TabBar />

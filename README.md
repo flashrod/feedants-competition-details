@@ -19,8 +19,8 @@ feedants-competition-details/
       routes/       competitions.ts (list/detail/participants/join/leave)
       utils/        status.ts — canonical lifecycle derivation
       middleware/   errors, app.ts, server.ts, config/
-    scripts/        seed.ts (one competition per lifecycle state), smoke.ts
-    tests/          competitions.test.ts (incl. 50-user race for 10 spots)
+    scripts/        seed.ts (5 competitions incl. pixel-spec dance), smoke.ts, stress-live.ts
+    tests/          competitions.test.ts (50-user race, detail shape)
   mobile/           Expo React Native app (TypeScript)
     screens/        ObjectiveScreen (pixel-spec assembly)
     components/obj  one file per spec block (TopBar → TabBar)
@@ -40,7 +40,7 @@ feedants-competition-details/
 cd backend
 cp .env.example .env        # MONGODB_URI=mongodb://localhost:27017/feedants
 npm install
-npm run seed                # prints the demo user id + 4 competitions
+npm run seed                # prints the demo user id + 5 competitions
 npm run dev                 # http://localhost:4000
 ```
 
@@ -60,13 +60,37 @@ npx expo start
 
 Open with Expo Go, or press `i` / `a` for simulator. The screen renders
 `feedants-classical-dance` for the demo user id: registered users see the
-"Registered" badge + "Upload Submission" CTA; unregistered users get a
-"Register Now · ₹ 99" CTA wired to the atomic join endpoint. Pull-to-refresh
-re-fetches; countdown ticks every second and polls while registration is open.
+"Registered" badge + "Upload Submission" CTA (plus a **Leave** link that frees
+their spot); unregistered users get a "Register Now · ₹ 99" CTA wired to the
+atomic join endpoint. Pull-to-refresh re-fetches; countdown ticks every second
+and polls while registration is open.
+
+**Browser preview** (what the demo recording uses): `npx expo start --web`.
+`App.tsx` resolves the route from query params, so any competition and any user
+can be deep-linked without re-seeding other simulated users:
+
+\`\`\`bash
+npx expo start --web
+open "http://localhost:8081/?slug=last-minute-sprint&userId=<id printed by seed>"
+\`\`\`
+
+The `userId` is optional (falls back to `EXPO_PUBLIC_DEMO_USER_ID`); omit `slug`
+to get the default `feedants-classical-dance`.
 
 ### 3. Screen recording
 
-Suggested 60-second script (what the evaluators should capture):
+A 26s self-contained walkthrough was captured from the browser build and
+assembled in **`.recording/feedants-demo.mp4`** (gitignored; regenerate with the
+scripted ffmpeg concat in `.recording/`): countdown ticking, full-panel scroll,
+ENG/हिंदी toggle, join → Leave → re-join on the dance screen, then each
+lifecycle state on `last-minute-sprint` / `monday-night-live` /
+`season-champions-2025`.
+
+If you re-record from scratch, run `npm run seed` in `backend/` first — the seed
+prints the (fresh) demo user id, and a seeded DB that has been sitting around for
+over a day stops demonstrating `live`/open states (they are time-derived, on
+purpose). Suggested 60-second script:
+
 1. Open `weekend-mega-clash` as demo user → registered state, countdown ticking.
 2. Leave → spots +1, CTA flips to Join; Join again with team name → spots −1.
 3. Open `last-minute-sprint` → 1 spot left; join from two devices/users → second gets 409 "full".

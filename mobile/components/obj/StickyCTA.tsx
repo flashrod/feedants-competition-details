@@ -1,22 +1,27 @@
 import React from 'react';
-import { ActivityIndicator, Alert, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { C } from '../theme';
 import { Tx } from '../Tx';
 import { formatMoney } from '../../hooks/useCountdown';
 import type { CompetitionDetails } from '../../api/client';
 import { getStrings, useLang } from '../../i18n';
 import { px } from '../../utils/scale';
+import { confirmAction } from '../../utils/platform';
 
 export function StickyCTA({
   c,
   joining,
+  leaving,
   onJoin,
   onUpload,
+  onLeave,
 }: {
   c: CompetitionDetails;
   joining: boolean;
+  leaving: boolean;
   onJoin: () => void;
   onUpload: () => void;
+  onLeave: () => void;
 }) {
   const lang = useLang();
   const t = getStrings(lang);
@@ -35,19 +40,13 @@ export function StickyCTA({
   return (
     <View style={{ paddingHorizontal: px(40), backgroundColor: C.bgPage, paddingBottom: px(9) }}>
       <TouchableOpacity
-        disabled={!enabled || joining}
+        disabled={!enabled || joining || leaving}
         onPress={() => {
           if (registered) {
             onUpload();
             return;
           }
-          Alert.alert(t.registerNow, sub, [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: t.registerNow,
-              onPress: () => onJoin(),
-            },
-          ]);
+          confirmAction(t.registerNow, sub, () => onJoin());
         }}
         style={{
           height: px(54),
@@ -63,7 +62,7 @@ export function StickyCTA({
           elevation: 3,
         }}
       >
-        {joining ? (
+        {joining || leaving ? (
           <ActivityIndicator color="#fff" />
         ) : (
           <>
@@ -78,6 +77,19 @@ export function StickyCTA({
           </>
         )}
       </TouchableOpacity>
+      {c.viewer.canLeave && (
+        <TouchableOpacity
+          disabled={leaving}
+          onPress={() =>
+            confirmAction(t.leaveConfirmTitle, t.leaveConfirmBody, () => onLeave())
+          }
+          style={{ alignSelf: 'center', marginTop: px(8), paddingVertical: px(4), paddingHorizontal: px(12) }}
+        >
+          <Tx size={px(13)} color={C.teal700} w={600}>
+            {leaving ? t.leaving : t.leaveComp}
+          </Tx>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

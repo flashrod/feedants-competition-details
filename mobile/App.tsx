@@ -7,12 +7,26 @@ import { useAppFonts } from './components/Tx';
 
 const queryClient = new QueryClient();
 
-const SLUG = process.env.EXPO_PUBLIC_COMPETITION_SLUG ?? 'feedants-classical-dance';
-const USER = process.env.EXPO_PUBLIC_DEMO_USER_ID ?? '';
+const DEFAULT_SLUG = 'feedants-classical-dance';
+
+// Competition + demo user come from env; on web they can be overridden by URL
+// query params (?slug=&userId=) so one build reaches every seeded competition,
+// the same deep-linking shape a production app would use for shareable links.
+function resolveRoute() {
+  const envSlug = process.env.EXPO_PUBLIC_COMPETITION_SLUG ?? DEFAULT_SLUG;
+  const envUser = process.env.EXPO_PUBLIC_DEMO_USER_ID ?? '';
+  if (typeof window === 'undefined') return { slug: envSlug, userId: envUser };
+  const p = new URLSearchParams(window.location.search);
+  return {
+    slug: p.get('slug') ?? envSlug,
+    userId: p.get('userId') ?? envUser,
+  };
+}
 
 function Root() {
+  const { slug, userId } = resolveRoute();
   useAppFonts();
-  return <ObjectiveScreen slug={SLUG} userId={USER.trim() || null} />;
+  return <ObjectiveScreen slug={slug} userId={userId.trim() || null} />;
 }
 
 export default function App() {
