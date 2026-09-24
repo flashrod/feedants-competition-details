@@ -37,6 +37,37 @@ function toDetailJson(comp: any, isRegistered: boolean, now = new Date()) {
     currency: comp.currency,
     prizePool: comp.prizePool,
     prizeBreakdown: comp.prizeBreakdown ?? [],
+    // Aliases used by the Objective screen spec.
+    capacity: comp.maxParticipants,
+    booked: comp.participantCount,
+    certificateForWinners: comp.certificateForWinners ?? false,
+    judge: comp.judge ?? null,
+    milestones: {
+      registerBefore: comp.registrationDeadline,
+      submissionStarts: comp.submissionStartsAt ?? comp.startsAt,
+      submissionEnds: comp.submissionEndsAt ?? comp.startsAt,
+      result: comp.resultAt ?? comp.endsAt,
+    },
+    previousWinners: (comp.previousWinners ?? []).map((w: any) => ({
+      name: w.name,
+      rankLabel: w.rankLabel,
+      thumbUrl: w.thumbUrl,
+      videoUrl: w.videoUrl,
+    })),
+    rewards: (comp.prizeBreakdown ?? []).map((p: any) => ({
+      label: `${p.position} Winner`,
+      amount: p.amount,
+      icon: p.icon ?? 'star',
+    })),
+    aboutTabs: {
+      about: comp.aboutTabs?.about ?? [],
+      judging: comp.aboutTabs?.judging ?? [],
+      rules: comp.aboutTabs?.rules ?? (comp.rules ?? []),
+    },
+    referral:
+      comp.referralLink != null
+        ? { link: comp.referralLink, earnPerSignup: comp.referralEarnPerSignup ?? 0 }
+        : null,
     maxParticipants: comp.maxParticipants,
     participantCount: comp.participantCount,
     spotsLeft: left,

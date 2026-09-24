@@ -25,3 +25,31 @@ export function formatCountdown(c: NonNullable<ReturnType<typeof useCountdown>>)
   if (c.days > 0) return `${c.days}d : ${p(c.hours)}h : ${p(c.mins)}m`;
   return `${p(c.hours)}h : ${p(c.mins)}m : ${p(c.secs)}s`;
 }
+
+/** Spec format: "01d : 06h : 28m : 32s" (zero-padded, spaces around colons). */
+export function formatCountdownFull(c: NonNullable<ReturnType<typeof useCountdown>>): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${p(c.days)}d : ${p(c.hours)}h : ${p(c.mins)}m : ${p(c.secs)}s`;
+}
+
+/** Spec date quirks: "10 Aug 26" (day not padded, 2-digit year, "Sept"). */
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+
+export function formatSpecDate(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
+}
+
+/** Spec time: 12-hour, zero-padded hour — "11:50 PM", "04:00 AM". */
+export function formatSpecTime(iso: string): string {
+  const d = new Date(iso);
+  let h = d.getHours();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${String(h).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} ${ampm}`;
+}
+
+export function formatMoney(amount: number): string {
+  return `₹ ${amount.toLocaleString('en-IN')}`;
+}

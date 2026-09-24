@@ -1,26 +1,49 @@
-export const theme = {
-  colors: {
-    primary: '#15803d',
-    primaryDark: '#166534',
-    background: '#f6f7f4',
-    card: '#ffffff',
-    text: '#101613',
-    muted: '#5f6b61',
-    border: '#e3e7e1',
-    warning: '#b45309',
-    danger: '#b91c1c',
-    live: '#dc2626',
-    gold: '#a16207',
-  },
-  radius: { sm: 8, md: 14, lg: 20 },
-};
+/** Design tokens measured from the Objective reference (852px canvas). */
 
-export const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
-  registration_open: { label: 'Registration Open', color: '#15803d', bg: '#dcfce7' },
-  full: { label: 'Full', color: '#b45309', bg: '#fef3c7' },
-  registration_closed: { label: 'Registration Closed', color: '#57534e', bg: '#e7e5e4' },
-  live: { label: 'Live Now', color: '#ffffff', bg: '#dc2626' },
-  completed: { label: 'Completed', color: '#57534e', bg: '#e7e5e4' },
-  cancelled: { label: 'Cancelled', color: '#ffffff', bg: '#44403c' },
-  upcoming: { label: 'Coming Soon', color: '#1d4ed8', bg: '#dbeafe' },
+export const C = {
+  bgPage: '#F5F8F8',
+  surface: '#FFFFFF',
+  borderCard: '#E6EEEE',
+  chipGrey: '#EDF1F1',
+  rowTint: '#F0F6F6',
+
+  teal900: '#0A4F55',
+  teal700: '#0B6467',
+  teal600: '#0E7377',
+  teal200: '#B7D9DA',
+  teal100: '#E2EFF0',
+
+  mint100: '#E2F5EC',
+  mint200: '#CFE8E0',
+
+  ink900: '#10272C',
+  ink700: '#2B3F44',
+  ink600: '#52676C',
+  inkTeal500: '#5E8388',
+
+  gold: '#F2A81D',
+  silver: '#AEB6BB',
+  bronze: '#EE7B22',
+  ribbonGreen: '#2E9E6B',
+
+  razorpayBlue: '#3395FF',
+  razorpayNavy: '#0B2A5B',
+
+  gridBorder: '#D2E3E3',
+  gridDivider: '#D9E6E6',
+  tabBaseline: '#DCE6E6',
+  toggleTrack: '#E9EEEE',
+  adBorder: '#C9D6D6',
+  adText: '#5F7275',
+  adIcon: '#7A8B8E',
+} as const;
+
+export const STATUS_META: Record<string, { label: string }> = {
+  registration_open: { label: 'Registration Open' },
+  full: { label: 'Full' },
+  registration_closed: { label: 'Registration Closed' },
+  live: { label: 'Live Now' },
+  completed: { label: 'Completed' },
+  cancelled: { label: 'Cancelled' },
+  upcoming: { label: 'Coming Soon' },
 };

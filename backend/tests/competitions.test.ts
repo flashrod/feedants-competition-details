@@ -66,6 +66,56 @@ describe('competition lifecycle', () => {
   });
 });
 
+describe('objective detail shape', () => {
+  it('serves judge, milestones, winners, rewards and referral blocks', async () => {
+    const comp = await Competition.create({
+      title: 'Feedants Classical Dance',
+      slug: `dance-${Date.now()}`,
+      description: 'x',
+      entryFee: 99,
+      currency: 'INR',
+      prizePool: 1500,
+      prizeBreakdown: [
+        { position: '1st', amount: 550, icon: 'gold' },
+        { position: '2nd', amount: 300, icon: 'silver' },
+        { position: '3rd', amount: 240, icon: 'bronze' },
+        { position: '4th', amount: 200, icon: 'star' },
+        { position: '5th', amount: 130, icon: 'star' },
+        { position: '6th', amount: 80, icon: 'star' },
+      ],
+      maxParticipants: 20,
+      participantCount: 1,
+      registrationOpensAt: hrs(-1),
+      registrationDeadline: hrs(30),
+      startsAt: hrs(500),
+      endsAt: hrs(550),
+      submissionStartsAt: hrs(-90),
+      submissionEndsAt: hrs(480),
+      resultAt: hrs(528),
+      judge: { name: 'Manju Dubey', title: 'Professional Kathak Dancer', experience: '12+ Years of Experience' },
+      previousWinners: [{ name: 'Riya Shah', rankLabel: '1st Winner' }],
+      aboutTabs: { about: ['line one'], judging: ['how judged'], rules: ['rule one'] },
+      certificateForWinners: true,
+      referralLink: 'https://feedants.com/r/referral123',
+      referralEarnPerSignup: 10,
+    });
+    const res = await request(app).get(`/api/competitions/${comp.slug}`).expect(200);
+    const d = res.body.data;
+    expect(d.status).toBe('registration_open');
+    expect(d.capacity).toBe(20);
+    expect(d.booked).toBe(1);
+    expect(d.spotsLeft).toBe(19);
+    expect(d.judge.name).toBe('Manju Dubey');
+    expect(d.milestones.registerBefore).toBeTruthy();
+    expect(d.milestones.result).toBeTruthy();
+    expect(d.previousWinners).toHaveLength(1);
+    expect(d.rewards).toHaveLength(6);
+    expect(d.rewards.reduce((s: number, r: any) => s + r.amount, 0)).toBe(d.prizePool);
+    expect(d.referral.link).toContain('feedants.com/r/');
+    expect(d.aboutTabs.about).toHaveLength(1);
+  });
+});
+
 describe('concurrent joins never oversell', () => {
   it('50 users racing for 10 spots => exactly 10 registered', async () => {
     const comp = await Competition.create({

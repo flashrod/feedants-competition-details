@@ -3,9 +3,11 @@
 Functional Competition Details screen: **React Native (Expo)** + **Node.js + Express** + **MongoDB (Mongoose)**.
 Nothing on the screen is hardcoded — every number, date, badge and button state is served by the API.
 
-> Note: no design image file was attached to the task, so the UI follows the standard Feedants-style
-> fantasy competition page (header stats, spots progress, countdown timeline, prize breakdown, rules,
-> participants, sticky Join/Leave bar) and implements every dynamic behaviour listed in the brief.
+The mobile app implements the **Objective pixel spec** (`feedants-classical-dance`):
+all 16 blocks top-to-bottom (status/top bar, summary card, judge card, countdown banner,
+dates grid, winners scroller, info tabs, rewards, disclaimer, trust row, refer card,
+testimonials, ad slot, sticky CTA, tab bar) on the 852px-canvas scale system (`s = deviceWidth/852`),
+Inter + Noto Sans Devanagari, Lucide icons, and a working ENG/हिंदी toggle.
 
 ## Repo layout
 
@@ -20,10 +22,13 @@ feedants-competition-details/
     scripts/        seed.ts (one competition per lifecycle state), smoke.ts
     tests/          competitions.test.ts (incl. 50-user race for 10 spots)
   mobile/           Expo React Native app (TypeScript)
-    screens/        CompetitionDetailsScreen
-    components/     Header, SpotsProgress, DateTimeline, Prize/About, Participants, StickyActionBar, StatusBanner
+    screens/        ObjectiveScreen (pixel-spec assembly)
+    components/obj  one file per spec block (TopBar → TabBar)
+    components/     Tx (Inter/Devanagari text), theme (spec tokens)
+    utils/scale.ts  s = deviceWidth/852; px(n) = n*s
     hooks/          useCompetitionDetails (react-query + optimistic join), useCountdown
     api/            typed client
+    i18n.ts         ENG/हिंदी dictionary (client-side)
   docker-compose.yml  mongo + api in one command
 ```
 
@@ -52,9 +57,11 @@ EXPO_PUBLIC_DEMO_USER_ID=<id printed by seed> \
 npx expo start
 ```
 
-Open with Expo Go, or press `i` / `a` for simulator. The header lets you switch between the four
-seeded competitions (open / almost-full / live / completed) and set the demo user id that drives
-Join/Leave. Pull-to-refresh re-fetches; open spots + countdowns poll every 15s while registration is open.
+Open with Expo Go, or press `i` / `a` for simulator. The screen renders
+`feedants-classical-dance` for the demo user id: registered users see the
+"Registered" badge + "Upload Submission" CTA; unregistered users get a
+"Register Now · ₹ 99" CTA wired to the atomic join endpoint. Pull-to-refresh
+re-fetches; countdown ticks every second and polls while registration is open.
 
 ### 3. Screen recording
 
@@ -63,6 +70,25 @@ Suggested 60-second script (what the evaluators should capture):
 2. Leave → spots +1, CTA flips to Join; Join again with team name → spots −1.
 3. Open `last-minute-sprint` → 1 spot left; join from two devices/users → second gets 409 "full".
 4. Open `monday-night-live` → Live banner, Join disabled; `season-champions-2025` → Completed state.
+
+## Objective-spec mapping
+
+- Seed competition `feedants-classical-dance` carries the exact spec payload:
+  title/tags/certificate flag, ₹1,500 pool = 550+300+240+200+130+80 rewards with
+  gold/silver/bronze/star icons, 20 capacity / 1 booked, judge Manju Dubey,
+  4 previous winners, about/judging/rules tabs, referral link + ₹10/signup.
+- The registration deadline is seeded `now + 30h28m32s` so the banner reads
+  `01d : 06h : 28m : 32s` and ticks live; display dates keep the spec quirks
+  (`1 Sept`, `04:00 AM`) via client formatters.
+- API detail adds `capacity/booked`, `judge`, `milestones{registerBefore,
+  submissionStarts, submissionEnds, result}`, `previousWinners`, `rewards[]`,
+  `aboutTabs`, `referral`, `certificateForWinners` (all optional → sections hide
+  when absent, so older competitions keep working).
+- Progress fill uses `max(booked/capacity*track, 32px)` per the spec's min-width note.
+- Photos are remote URLs from the DB (picsum seeds) with initials-tile fallback;
+  swap for a CDN in production.
+- ENG/हिंदी toggle is a client-side dictionary covering all UI strings
+  (competition content stays DB-driven; Hindi about-copy ships in the dict).
 
 ## API
 

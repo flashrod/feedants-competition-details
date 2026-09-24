@@ -4,6 +4,29 @@ const prizeSchema = new Schema(
   {
     position: { type: String, required: true }, // e.g. "1st", "2nd", "3rd-5th"
     amount: { type: Number, required: true, min: 0 },
+    // Visual treatment for the rewards list: gold/silver/bronze medal or star.
+    icon: { type: String, enum: ['gold', 'silver', 'bronze', 'star'], default: 'star' },
+  },
+  { _id: false },
+);
+
+const judgeSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    title: { type: String, default: null },
+    experience: { type: String, default: null },
+    photoUrl: { type: String, default: null },
+    introVideoUrl: { type: String, default: null },
+  },
+  { _id: false },
+);
+
+const winnerSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    rankLabel: { type: String, required: true }, // e.g. "1st Winner"
+    thumbUrl: { type: String, default: null },
+    videoUrl: { type: String, default: null },
   },
   { _id: false },
 );
@@ -40,6 +63,24 @@ const competitionSchema = new Schema(
     registrationDeadline: { type: Date, required: true },
     startsAt: { type: Date, required: true },
     endsAt: { type: Date, required: true },
+
+    // Display milestones for detail screens whose phases overlap
+    // (e.g. submissions open before registration closes).
+    submissionStartsAt: { type: Date, default: null },
+    submissionEndsAt: { type: Date, default: null },
+    resultAt: { type: Date, default: null },
+
+    // Objective-screen content blocks (all optional; null = section hidden).
+    judge: { type: judgeSchema, default: null },
+    previousWinners: { type: [winnerSchema], default: [] },
+    aboutTabs: {
+      about: { type: [String], default: [] },
+      judging: { type: [String], default: [] },
+      rules: { type: [String], default: [] },
+    },
+    certificateForWinners: { type: Boolean, default: false },
+    referralLink: { type: String, default: null },
+    referralEarnPerSignup: { type: Number, default: 0, min: 0 },
 
     isCancelled: { type: Boolean, default: false },
     cancelledReason: { type: String, default: null },

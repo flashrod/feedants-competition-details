@@ -118,7 +118,85 @@ export async function seed() {
     teamName: 'Demo XI',
   });
 
-  return { demoUserId: String(demo._id), competitions };
+  // Feedants Classical Dance — pixel-spec Objective screen competition.
+  // Countdown in the reference reads 01d:06h:28m:32s, so the registration
+  // deadline is seeded relative to now to keep it live.
+  const regClose = new Date(Date.now() + ((1 * 24 + 6) * 3600 + 28 * 60 + 32) * 1000);
+  const dance = await Competition.create({
+    title: 'Feedants Classical Dance',
+    slug: 'feedants-classical-dance',
+    description: 'This is an online classical dance competition open for all age groups.',
+    rules: [
+      'Open for all age groups.',
+      'One submission per participant.',
+      'Only contributions from paid participants will be considered for judging.',
+    ],
+    organizerName: 'Feedants',
+    currency: 'INR',
+    tags: ['Dance', 'Multi-Win'],
+    gameType: 'fantasy',
+    certificateForWinners: true,
+    entryFee: 99,
+    prizePool: 1500,
+    prizeBreakdown: [
+      { position: '1st', amount: 550, icon: 'gold' },
+      { position: '2nd', amount: 300, icon: 'silver' },
+      { position: '3rd', amount: 240, icon: 'bronze' },
+      { position: '4th', amount: 200, icon: 'star' },
+      { position: '5th', amount: 130, icon: 'star' },
+      { position: '6th', amount: 80, icon: 'star' },
+    ],
+    maxParticipants: 20,
+    participantCount: 1,
+    registrationOpensAt: hoursFromNow(-24 * 5),
+    registrationDeadline: regClose,
+    // Lifecycle phases: live once submissions end, completed after results.
+    startsAt: new Date(regClose.getTime() + 20 * 24 * 3600_000 + 5 * 60_000),
+    endsAt: new Date(regClose.getTime() + 22 * 24 * 3600_000 + 60 * 60_000),
+    submissionStartsAt: new Date(regClose.getTime() - (4 * 24 * 3600 + 19 * 3600 + 50 * 60) * 1000),
+    submissionEndsAt: new Date(regClose.getTime() + 20 * 24 * 3600_000 + 5 * 60_000),
+    resultAt: new Date(regClose.getTime() + 22 * 24 * 3600_000),
+    judge: {
+      name: 'Manju Dubey',
+      title: 'Professional Kathak Dancer',
+      experience: '12+ Years of Experience',
+      photoUrl: 'https://picsum.photos/seed/feedants-judge-manju/400/400',
+      introVideoUrl: null,
+    },
+    previousWinners: [
+      { name: 'Riya Shah', rankLabel: '1st Winner', thumbUrl: 'https://picsum.photos/seed/feedants-winner-riya/200/200' },
+      { name: 'Aarav Mehta', rankLabel: '1st Winner', thumbUrl: 'https://picsum.photos/seed/feedants-winner-aarav/200/200' },
+      { name: 'Neha Verma', rankLabel: '2nd Winner', thumbUrl: 'https://picsum.photos/seed/feedants-winner-neha/200/200' },
+      { name: 'Ishita Chopra', rankLabel: '3rd Winner', thumbUrl: 'https://picsum.photos/seed/feedants-winner-ishita/200/200' },
+    ],
+    aboutTabs: {
+      about: [
+        'This is an online classical dance competition open for all age groups.',
+        'Participate from anywhere and showcase your talent.',
+        'Express your passion through traditional dance.',
+      ],
+      judging: [
+        'Performances are scored on technique, expression and stage presence.',
+        'Only contributions from paid participants will be considered for judging.',
+        'The judge’s decision is final and binding.',
+      ],
+      rules: [
+        'Open for all age groups.',
+        'One submission per participant.',
+        'Submit your video before the submission deadline.',
+      ],
+    },
+    referralLink: 'https://feedants.com/r/referral123',
+    referralEarnPerSignup: 10,
+  });
+  await Participation.create({
+    competitionId: dance._id,
+    userId: users[1]._id,
+    status: 'registered',
+    teamName: 'Kathak Beats',
+  });
+
+  return { demoUserId: String(demo._id), competitions: [...competitions, dance] };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

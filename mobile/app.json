@@ -5,8 +5,17 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#15803d",
-    "plugins": [],
-    "ios": { "supportsTablet": true },
-    "android": { "adaptiveIcon": { "backgroundColor": "#15803d" } }
+    "plugins": [
+      "expo-font",
+      "expo-asset"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#15803d"
+      }
+    }
   }
 }

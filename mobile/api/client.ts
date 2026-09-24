@@ -37,6 +37,32 @@ export interface CompetitionDetails {
   cancelledReason: string | null;
   organizerName: string;
   tags: string[];
+  // Objective-screen blocks (present when the backend competition has them).
+  capacity?: number;
+  booked?: number;
+  certificateForWinners?: boolean;
+  judge?: {
+    name: string;
+    title: string | null;
+    experience: string | null;
+    photoUrl: string | null;
+    introVideoUrl: string | null;
+  } | null;
+  milestones?: {
+    registerBefore: string;
+    submissionStarts: string;
+    submissionEnds: string;
+    result: string;
+  };
+  previousWinners?: {
+    name: string;
+    rankLabel: string;
+    thumbUrl: string | null;
+    videoUrl: string | null;
+  }[];
+  rewards?: { label: string; amount: number; icon: 'gold' | 'silver' | 'bronze' | 'star' }[];
+  aboutTabs?: { about: string[]; judging: string[]; rules: string[] };
+  referral?: { link: string; earnPerSignup: number } | null;
   viewer: {
     isRegistered: boolean;
     canJoin: boolean;
