@@ -44,7 +44,8 @@ npm run seed                # prints the demo user id + 4 competitions
 npm run dev                 # http://localhost:4000
 ```
 
-Or with Docker: `docker compose up --build` (seeds on first boot if `SEED_ON_BOOT=true`).
+Or with Docker: `docker compose up --build` (with `SEED_ON_BOOT=true` the API
+auto-seeds an empty database on boot).
 
 ### 2. Mobile app
 
@@ -102,7 +103,10 @@ Suggested 60-second script (what the evaluators should capture):
 | POST | `/api/competitions/:id/join` | `{userId, teamName?, idempotencyKey?}` — atomic spot claim |
 | POST | `/api/competitions/:id/leave` | `{userId}` — withdraw, frees one spot |
 
-All errors: `{ error: { message, status } }`. Join/leave rate-limited (60/min/IP on the router).
+All errors: `{ error: { message, status } }`. Rate limits are split: writes
+(join/leave) 300/min/IP, reads 1000/min/IP (env-overridable, bypassed in tests);
+the atomic spot-claim — not the limiter — is the oversell guard, so shared-IP
+bursts never corrupt data.
 
 ## Data model
 

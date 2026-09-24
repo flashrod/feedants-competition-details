@@ -18,6 +18,7 @@ services:
       PORT: 4000
       MONGODB_URI: mongodb://mongo:27017/feedants
       CORS_ORIGIN: "*"
+      SEED_ON_BOOT: "true"
     depends_on:
       - mongo
 

@@ -20,12 +20,6 @@ export function useCountdown(targetIso: string | null, tickMs = 1000) {
   return { days, hours, mins, secs, totalMs: diff };
 }
 
-export function formatCountdown(c: NonNullable<ReturnType<typeof useCountdown>>): string {
-  const p = (n: number) => String(n).padStart(2, '0');
-  if (c.days > 0) return `${c.days}d : ${p(c.hours)}h : ${p(c.mins)}m`;
-  return `${p(c.hours)}h : ${p(c.mins)}m : ${p(c.secs)}s`;
-}
-
 /** Spec format: "01d : 06h : 28m : 32s" (zero-padded, spaces around colons). */
 export function formatCountdownFull(c: NonNullable<ReturnType<typeof useCountdown>>): string {
   const p = (n: number) => String(n).padStart(2, '0');

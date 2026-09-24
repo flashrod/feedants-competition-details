@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -14,13 +14,18 @@ export function createApp() {
   app.use(express.json({ limit: '256kb' }));
   app.use(morgan('tiny'));
 
-  // Protect the join/leave hot path from brute-force spot grabbing.
-  const joinLimiter = rateLimit({
-    windowMs: 60_000,
-    max: 60,
-    standardHeaders: 'draft-7',
-    legacyHeaders: false,
-  });
+  // Generous read-path limiter (browsing + countdown polling must never 429
+  // humans). Writes have their own stricter limiter inside the router.
+  const passThrough = (_req: Request, _res: Response, next: NextFunction) => next();
+  const readLimiter =
+    process.env.NODE_ENV === 'test'
+      ? passThrough
+      : rateLimit({
+          windowMs: 60_000,
+          max: env.rateLimitReadMax,
+          standardHeaders: 'draft-7',
+          legacyHeaders: false,
+        });
 
   app.get('/health', (_req, res) => res.json({ ok: true, time: new Date().toISOString() }));
   // Demo helper so the mobile app can pick a user id without hardcoding.
@@ -40,7 +45,7 @@ export function createApp() {
       next(e);
     }
   });
-  app.use('/api/competitions', joinLimiter, competitionsRouter);
+  app.use('/api/competitions', readLimiter, competitionsRouter);
 
   app.use((_req, res) => res.status(404).json({ error: { message: 'Not found', status: 404 } }));
   app.use(errorHandler);

@@ -1,13 +1,31 @@
-import { Router, type Request } from 'express';
+import { Router, type NextFunction, type Request, type Response } from 'express';
 import mongoose from 'mongoose';
+import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { Competition } from '../models/Competition.js';
 import { Participation } from '../models/Participation.js';
 import { User } from '../models/User.js';
+import { env } from '../config/env.js';
 import { getCompetitionStatus, getViewerContext, spotsLeft } from '../utils/status.js';
 import { httpError } from '../middleware/errors.js';
 
 export const competitionsRouter = Router();
+
+// Write-path limiter only (join/leave). Reads stay unthrottled-for-humans so
+// browsing + polling countdowns never 429. Bypassed under NODE_ENV=test so the
+// concurrency suite measures the atomic guard, not the limiter.
+const passThrough = (_req: Request, _res: Response, next: NextFunction) => next();
+const writeLimiter =
+  process.env.NODE_ENV === 'test'
+    ? passThrough
+    : rateLimit({
+        windowMs: 60_000,
+        max: env.rateLimitWriteMax,
+        standardHeaders: 'draft-7',
+        legacyHeaders: false,
+        message: { error: { message: 'Too many requests, slow down.', status: 429 } },
+      });
+competitionsRouter.use(['/:idOrSlug/join', '/:idOrSlug/leave'], writeLimiter);
 
 function viewerId(req: Request): string | null {
   const raw = req.header('x-user-id') ?? (req.query.userId as string | undefined) ?? null;

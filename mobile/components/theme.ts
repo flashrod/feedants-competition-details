@@ -37,13 +37,3 @@ export const C = {
   adText: '#5F7275',
   adIcon: '#7A8B8E',
 } as const;
-
-export const STATUS_META: Record<string, { label: string }> = {
-  registration_open: { label: 'Registration Open' },
-  full: { label: 'Full' },
-  registration_closed: { label: 'Registration Closed' },
-  live: { label: 'Live Now' },
-  completed: { label: 'Completed' },
-  cancelled: { label: 'Cancelled' },
-  upcoming: { label: 'Coming Soon' },
-};
